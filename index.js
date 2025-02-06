@@ -6,7 +6,7 @@ const {getMessages, addMessage} = require('./database.js');
 const APIKEY = "123456";
 
 app.get('/', (req, res) => {
-  res.send('Bienvenido al despliegue del servidor de Alvaro!');
+  res.send('Bienvenido al despliegue del servidor de Lucas!');
 })
 
 app.get('/message', (req, res) => {    
