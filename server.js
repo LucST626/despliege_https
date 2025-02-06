@@ -39,23 +39,26 @@ app.get('/messages', (req, res) => {
 // Agregar un nuevo mensaje
 app.post('/messages', (req, res) => {
     const apiKey = req.headers['apikey'];
-    const { content, user } = req.query;
+    const { content, user } = req.query; // Usamos req.query para obtener los parámetros de la URL
 
     // Verificamos la APIKEY
     if (apiKey !== '1234567890abcdef') {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    if (!content || !user) {
-        return res.status(400).json({ error: 'El mensaje y el usuario son obligatorios' });
+    if (!content) {
+        return res.status(400).json({ error: 'El mensaje es obligatorio' });
     }
 
+    // Si no se pasa el 'user', asignamos 'anonimo' como valor predeterminado
+    const userValue = user || 'anonimo';
+
     // Agregar el mensaje a la base de datos
-    database.addMessage(content, user, (err, newMessage) => {
+    database.addMessage(content, userValue, (err, newMessage) => {
         if (err) {
             return res.status(500).json({ error: 'Error al agregar el mensaje' });
         }
-        res.json(newMessage);
+        res.status(201).json(newMessage); // Respondemos con el mensaje creado
     });
 });
 
