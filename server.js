@@ -1,52 +1,65 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const { getMessages, postMessage } = require('./database');
+const cors = require('cors');
+const database = require('./database'); // Importa las funciones de la base de datos
 const app = express();
+const PORT = 3000;
 
-// Middleware
-app.use(bodyParser.json());
+// Middleware para permitir solicitudes CORS (si es necesario)
+app.use(cors());
 
-// API Key (Hardcodeada)
-const API_KEY = 'mi-api-key-secreta';
+// Servir archivos estáticos desde la carpeta "public"
+app.use(express.static('public'));
 
-// Función para validar el API key
-function validateApiKey(req, res, next) {
-  const apiKey = req.headers['apikey'];
-  console.log('API Key recibida:', apiKey); // Depuración: Ver qué API Key llega
-  if (apiKey !== API_KEY) {
-    return res.status(403).json({ error: 'API key inválida' });
-  }
-  next();
-}
+// Middleware para parsear las query params en formato JSON
+app.use(express.json());
 
-// Endpoint GET para obtener mensajes
-app.get('/messages', validateApiKey, async (req, res) => {
-  try {
-    const messages = await getMessages();
-    res.json(messages);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener los mensajes' });
-  }
+// Ruta raíz
+app.get('/', (req, res) => {
+    res.send('¡Bienvenido a la API de mensajes!');
 });
 
-// Endpoint POST para agregar un mensaje
-app.post('/messages', validateApiKey, async (req, res) => {
-  const { message, user } = req.query;
+// Obtener los mensajes
+app.get('/messages', (req, res) => {
+    const apiKey = req.headers['apikey'];
 
-  if (!message) {
-    return res.status(400).json({ error: 'El mensaje es requerido' });
-  }
+    // Verificamos la APIKEY
+    if (apiKey !== '1234567890abcdef') {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
 
-  try {
-    await postMessage(message, user);
-    res.status(201).json({ success: 'Mensaje agregado' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al agregar el mensaje' });
-  }
+    // Obtener los mensajes de la base de datos
+    database.getAllMessages((err, messages) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error al obtener los mensajes' });
+        }
+        res.json({ messages });
+    });
 });
 
-// Iniciar servidor
-const PORT = process.env.PORT || 3000;
+// Agregar un nuevo mensaje
+app.post('/messages', (req, res) => {
+    const apiKey = req.headers['apikey'];
+    const { content, user } = req.query;
+
+    // Verificamos la APIKEY
+    if (apiKey !== '1234567890abcdef') {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (!content || !user) {
+        return res.status(400).json({ error: 'El mensaje y el usuario son obligatorios' });
+    }
+
+    // Agregar el mensaje a la base de datos
+    database.addMessage(content, user, (err, newMessage) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error al agregar el mensaje' });
+        }
+        res.json(newMessage);
+    });
+});
+
+// Iniciar el servidor
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
