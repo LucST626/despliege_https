@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mensajes</title>
+</head>
+<body>
+  <h1>Enviar y Ver Mensajes</h1>
+
+  <h2>Enviar mensaje</h2>
+  <form id="sendMessageForm">
+    <input type="text" id="message" placeholder="Escribe tu mensaje" required />
+    <input type="text" id="user" placeholder="Usuario (opcional)" />
+    <button type="submit">Enviar mensaje</button>
+  </form>
+
+  <h2>Mensajes</h2>
+  <ul id="messagesList"></ul>
+
+  <script>
+    const API_KEY = 'mi-api-key-secreta'; // La misma API key hardcodeada
+    const apiUrl = 'http://localhost:3000/messages';
+
+    // Mostrar mensajes
+    async function loadMessages() {
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'apikey': API_KEY // Asegúrate de que esta clave esté en los headers
+        }
+      });
+      const data = await response.json();
+      const messagesList = document.getElementById('messagesList');
+      messagesList.innerHTML = '';
+      data.forEach(msg => {
+        const li = document.createElement('li');
+        li.textContent = `${msg.user}: ${msg.message}`;
+        messagesList.appendChild(li);
+      });
+    }
+
+    // Enviar mensaje
+    document.getElementById('sendMessageForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const message = document.getElementById('message').value;
+      const user = document.getElementById('user').value;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'apikey': API_KEY // Asegúrate de que esta clave esté en los headers
+        },
+        body: new URLSearchParams({ message, user })
+      });
+
+      const result = await response.json();
+      alert(result.success || result.error);
+      loadMessages(); // Recargar los mensajes
+    });
+
+    // Cargar los mensajes al inicio
+    loadMessages();
+  </script>
+</body>
+</html>
