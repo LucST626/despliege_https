@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const https = require('https');
+const http = require('http');
 const app = express();
 app.use(express.json());
 const {getMessages, addMessage} = require('./database.js');
@@ -40,17 +41,25 @@ app.post('/message', (req, res) => {
   }
 })
 
-const options = {
-  key: fs.readFileSync(path.join(__dirname, 'privkey.pem')),
-  cert: fs.readFileSync(path.join(__dirname, 'fullchain.pem'))
-};
-
-
-//create an http server
-https.createServer(options, app).listen(3000, () => {
-  console.log('Servidor corriendo en https://dev7.cyberbunny.online:3000');
+if(process.env.NODE_ENV === 'production'){
+ 
+  const options = {
+    key: fs.readFileSync(path.join(__dirname, 'privkey.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'fullchain.pem'))
+  };
+  
+  
+  //create an http server
+  https.createServer(options, app).listen(3000, () => {
+    console.log('Servidor corriendo en https://dev5.cyberbunny.online:3000');
+  })
+} else {
+  http.createServer(app).listen(3000, () => {
+    console.log('Servidor corriendo en http://localhost:3000');
+  })
 }
-);
+
+;
 /*
 app.listen(3000, () => {    
     console.log('Servidor corriendo en http://localhost:3000');
