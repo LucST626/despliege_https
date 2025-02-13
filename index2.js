@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
   res.send('Bienvenido al despliegue del servidor de Lucas!');
 });
 
-app.get('/message', (req, res) => {
+app.get('/messages', (req, res) => {
   // Devolver mensajes alamacenados en la BBDD
   const apikey = req.headers['apikey'];
   if (apikey !== APIKEY) {
@@ -30,7 +30,7 @@ app.get('/message', (req, res) => {
   }
 });
 
-app.post('/message', (req, res) => {
+app.post('/messages', (req, res) => {
   // Guardar mensajes en la BBDD
   const apikey = req.headers['apikey'];
   if (apikey !== APIKEY) {
@@ -49,5 +49,5 @@ app.post('/message', (req, res) => {
 
 // Iniciar el servidor en localhost
 http.createServer(app).listen(3000, '0.0.0.0', () => {
-  console.log('Servidor corriendo en http://localhost:3000');
+  console.log('Servidor corriendo en http://172.233.98.154:3000');
 });
