@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
   res.send('Bienvenido al despliegue del servidor de Lucas!');
 });
 
-app.get('/message', (req, res) => {
+app.get('/messages', (req, res) => {
   // Devolver mensajes alamacenados en la BBDD
   const apikey = req.headers['apikey'];
   if (apikey !== APIKEY) {
@@ -26,7 +26,7 @@ app.get('/message', (req, res) => {
   }
 });
 
-app.post('/message', (req, res) => {
+app.post('/messages', (req, res) => {
   // Guardar mensajes en la BBDD
   const apikey = req.headers['apikey'];
   if (apikey !== APIKEY) {
