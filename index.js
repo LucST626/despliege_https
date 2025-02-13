@@ -60,7 +60,7 @@ app.post('/messages', (req, res) => {
   }
 })
 
-addMessage("Este es un mensaje hardcodeado");
+addMessage("Juan juanito juan");
 console.log(process.env.NODE_ENV); // Process.env busca la variable de entorno NODE_ENV en el proyecto
 if(process.env.NODE_ENV === 'production'){
 
