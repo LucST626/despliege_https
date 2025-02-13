@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensajes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Mensajes</h1>
+        <div id="message-list"></div>
+        <form id="message-form">
+            <input type="text" id="user" placeholder="Usuario" required>
+            <input type="text" id="message" placeholder="Mensaje" required>
+            <button type="submit">Enviar</button>
+        </form>
+        <div id="feedback" class="feedback"></div>
+    </div>
+    <script>
+        const API_KEY = '1234567890abcdef'; // La misma APIKEY hardcodeada
+        const messageList = document.getElementById('message-list');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message');
+        const userInput = document.getElementById('user');
+        const feedback = document.getElementById('feedback');
+
+        const servers = [
+            'http://dev1.cyberbunny.online:3000',
+            'http://dev2.cyberbunny.online:3000',
+            'http://dev3.cyberbunny.online:3000',
+            'http://dev4.cyberbunny.online:3000',
+            'http://dev5.cyberbunny.online:3000'
+        ];
+
+        // Función para obtener y mostrar los mensajes
+        async function fetchMessages() {
+            messageList.innerHTML = ''; // Limpiar los mensajes existentes
+            for (const server of servers) {
+                try {
+                    const response = await fetch(`${server}/message`, {
+                        method: 'GET',
+                        headers: {
+                            'APIKEY': API_KEY
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        data.forEach(message => {
+                            const messageElement = document.createElement('div');
+                            messageElement.classList.add('message');
+                            messageElement.innerHTML = `<strong>${message.user}:</strong> ${message.content}`;
+                            messageList.appendChild(messageElement);
+                        });
+                    } else {
+                        console.error(`Error al obtener los mensajes de ${server}:`, response.statusText);
+                    }
+                } catch (error) {
+                    console.error(`Error en la solicitud a ${server}:`, error);
+                }
+            }
+        }
+
+        // Función para enviar un nuevo mensaje
+        async function sendMessage(event) {
+            event.preventDefault();
+
+            const content = messageInput.value;
+            const user = userInput.value;
+
+            if (!content || !user) {
+                alert('El mensaje y el usuario son obligatorios.');
+                return;
+            }
+
+            for (const server of servers) {
+                try {
+                    const response = await fetch(`${server}/message`, {
+                        method: 'POST',
+                        headers: {
+                            'APIKEY': API_KEY,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: content, user: user })
+                    });
+
+                    if (response.ok) {
+                        feedback.className = 'feedback success';
+                        feedback.textContent = 'Mensaje enviado con éxito';
+                    } else {
+                        feedback.className = 'feedback error';
+                        feedback.textContent = `Error al enviar el mensaje a ${server}: ${response.statusText}`;
+                    }
+                } catch (error) {
+                    feedback.className = 'feedback error';
+                    feedback.textContent = `Error en la solicitud a ${server}: ${error}`;
+                }
+            }
+
+            messageInput.value = '';  // Limpiar el campo de mensaje
+            userInput.value = '';     // Limpiar el campo de usuario
+            fetchMessages();          // Volver a cargar los mensajes
+        }
+
+        // Llamada inicial para cargar los mensajes
+        fetchMessages();
+
+        // Agregar el manejador de eventos para el formulario
+        messageForm.addEventListener('submit', sendMessage);
+    </script>
+</body>
+</html>
