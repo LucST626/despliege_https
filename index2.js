@@ -12,6 +12,9 @@ const { getMessages, addMessage } = require('./database.js');
 
 const APIKEY = "123456";
 
+// Servir archivos estáticos desde la carpeta 'public'
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/', (req, res) => {
   res.send('Bienvenido al despliegue del servidor de Lucas!');
 });
