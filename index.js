@@ -18,12 +18,6 @@ app.get('/', (req, res) => {
 app.get('/messages', (req, res) => {
   // Devolver mensajes alamacenados en la BBDD
   const apikey = req.headers['apikey'];
-  if (apikey !== APIKEY) {
-    return res.status(401).send('Unauthorized');
-  } else if (apikey === APIKEY) {
-    res.json(getMessages());
-    return res.status(200).send('OK');
-  }
 });
 
 app.post('/messages', (req, res) => {
