@@ -1,13 +1,14 @@
-const express = require('express');
-const fs = require('fs');
-const https = require('https');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const express = require('express');
 const cors = require('cors'); // Requiere la librería cors
+
 const app = express();
 app.use(express.json());
 app.use(cors()); // Usa cors en tu aplicación
+
 const { getMessages, addMessage } = require('./database.js');
-const path = require('path');
 
 const APIKEY = "123456";
 
@@ -43,18 +44,7 @@ app.post('/message', (req, res) => {
   }
 });
 
-if (process.env.NODE_ENV === 'production') {
-  const options = {
-    key: fs.readFileSync(path.join(__dirname, 'privkey.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'fullchain.pem'))
-  };
-
-  //create an https server
-  https.createServer(options, app).listen(3000, () => {
-    console.log('Servidor corriendo en https://dev5.cyberbunny.online:3000');
-  });
-} else {
-  http.createServer(app).listen(3000, () => {
-    console.log('Servidor corriendo en http://localhost:3000');
-  });
-}
+// Iniciar el servidor en localhost
+http.createServer(app).listen(3000, () => {
+  console.log('Servidor corriendo en http://localhost:3000');
+});
